@@ -19,8 +19,13 @@ const projectRoot = resolve(process.argv[2] || process.env.CLAUDE_PROJECT_DIR ||
 
 const dirs = [
   join(projectRoot, 'requirements'),
-  join(projectRoot, 'materials'),
 ];
+// 兼容已有的资料夹命名：若工程里已有 material/(单数) 而没有 materials/，沿用单数，不重复建
+let materialsDirName = 'materials';
+if (existsSync(join(projectRoot, 'material')) && !existsSync(join(projectRoot, 'materials'))) {
+  materialsDirName = 'material';
+}
+dirs.push(join(projectRoot, materialsDirName));
 const loop = loopDir(projectRoot);
 ['', 'tests', 'boards', 'detectors', 'protocols', 'memory', 'logs'].forEach((d) =>
   dirs.push(d ? join(loop, d) : loop)
@@ -32,19 +37,19 @@ function seed(srcTplName, dstPath) {
   if (!existsSync(dstPath) && existsSync(tpl(srcTplName))) copyFileSync(tpl(srcTplName), dstPath);
 }
 seed('REQUIREMENT-DOC.template.md', join(projectRoot, 'requirements', 'REQUIREMENT.md'));
-seed('materials-README.template.md', join(projectRoot, 'materials', 'README.md'));
+seed('materials-README.template.md', join(projectRoot, materialsDirName, 'README.md'));
 seed('SPEC.template.md', join(loop, 'SPEC.md'));
 seed('longterm.template.md', join(loop, 'memory', 'longterm.md'));
 
 // 初始化 state.json（含需求夹/资料夹路径）
 const st = readState(projectRoot);
 st.env.requirementsDir = 'requirements';
-st.env.materialsDir = 'materials';
-if (!st.env.docsDir) st.env.docsDir = 'materials';
+st.env.materialsDir = materialsDirName;
+if (!st.env.docsDir) st.env.docsDir = materialsDirName;
 writeState(st, projectRoot);
 
 console.log('embedded-loop 脚手架已创建于: ' + projectRoot);
 console.log('  requirements/REQUIREMENT.md  ← 在这里写需求（已放模板）');
-console.log('  materials/README.md          ← 在这里放资料 / 列资料位置（PDF/网址）');
+console.log('  ' + materialsDirName + '/README.md          ← 在这里放资料 / 列资料位置（PDF/网址）');
 console.log('  .embedded-loop/              ← 框架工作区（SPEC/state/tests/boards/...）');
-console.log('下一步：填好 requirements/ 与 materials/ 后运行 /embedded-loop:run');
+console.log('下一步：填好 requirements/ 与 ' + materialsDirName + '/ 后运行 /embedded-loop:run');

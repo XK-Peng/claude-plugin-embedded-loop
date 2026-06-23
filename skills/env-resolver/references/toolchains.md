@@ -55,3 +55,16 @@
 - 因为架构是 HAL/BSP + 函数指针 ops,逻辑层可在 PC 编译运行:
   `gcc -I include test/*.c src/logic/*.c -o ut && ./ut`（Windows: MinGW `gcc`,产出 `ut.exe`)
 - 填进 board profile 的 `host_test.command`,逻辑层不上板即可秒级回归。
+
+## Nations 国民技术（N32Gxx / N32Lxx，如 N32G003，Cortex-M0/M0+）
+- IDE：Keil MDK，配 Nations 的 DFP 包（如 `Nations.N32G003_DFP.x.x.x.pack`）+ 厂商固件库（`Nations.N32G003_Library`）。
+- 编译：Keil 命令行 `UV4 -j0 -b <工程.uvprojx> -o keil_build.log`（工程在 SDK 的 projects/.../ 下）。
+- 烧录：常用 **J-Link**（SDK 自带 jlink/ 目录即提示）。
+  - 最稳：Keil 自带下载 `UV4 -f <工程.uvprojx>`（用工程里配的 J-Link + DFP flash 算法）。
+  - 或 J-Link CLI：`JLink.exe -device <N32器件名> -if SWD -speed 4000 -CommanderScript flash.jlink`（器件名以 J-Link 设备列表为准，待确认）。
+- 寄存器/管脚以资料夹下的 datasheet/DFP/固件库 board 文件为准，不臆测。
+
+## 通用兜底（厂商不在上表 / 私有内核，如 Telink tc32、各家 RISC-V）
+1. 让 detect-env 先扫出芯片/IDE/烧录器线索，能扫到就生成 board 草稿。
+2. 扫不准时，直接请用户给**一条平时能编译通过的命令**和**一条能烧录的命令**，原样填进 board profile 的 build/flash。
+3. 不要硬套相近厂商的工具（如别拿 ST 的 STM32CubeProgrammer 去烧非 ST 芯片）。

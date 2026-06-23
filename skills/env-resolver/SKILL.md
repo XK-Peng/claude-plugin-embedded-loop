@@ -8,6 +8,10 @@ description: Read the user's requirement document and extract the target chip/MC
 ## 何时用
 新需求文档进来、或用户提到芯片/IDE/OS、或 `state.env.toolchainResolved=false`、或 board-flash 还没有真实编译/烧录命令时。这是"自动找到对应硬件编译/下载指令"的入口。
 
+## 两种模式
+- **init 模式（项目扫描，不读需求）**：`/init` 已先跑 `scripts/detect-env.mjs`，从工程已有文件（DFP 包、`*_Library`/`*_DFP`、`.uvprojx`、jlink）推断芯片/厂商/IDE/烧录器并生成 board 草稿。本技能在此只负责把草稿里的占位命令**列给用户确认/补全**，不读需求、不迭代。
+- **run 模式（结合需求文档）**：`/run` 时若工具链仍未确认，结合 `requirements/` 的需求文档把 chip/os/ide 与编译/烧录命令补全确认。
+
 ## 怎么做
 0. **定位输入夹**：需求文档在工程根 `requirements/`，资料在 `materials/`（路径记于 `state.env.requirementsDir/materialsDir`）。读 `requirements/` 下的需求文档(通常 REQUIREMENT.md)。
 1. **从需求文档抽取环境四要素**（用户在文档第 2 节写明，缺则问）：
