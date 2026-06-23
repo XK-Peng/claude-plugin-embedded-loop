@@ -1,0 +1,6 @@
+[
+  {
+    "name": "hw-serial-monitor",
+    "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/serial-tail.mjs\""
+  }
+]

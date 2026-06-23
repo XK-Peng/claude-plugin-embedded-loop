@@ -1,0 +1,11 @@
+{
+  "name": "relay-tester-01",
+  "port": "COM7",
+  "baud": 115200,
+  "protocolRef": "protocols/relay-tester.md",
+  "lang": "python",
+  "items": [
+    { "id": "K1-CLOSE", "desc": "检测继电器 K1 触点是否真导通", "cmd": "<协议里查询/测量命令>", "parse": "<如何从应答解析真值>" }
+  ],
+  "comment": "由 fixture-protocol-gen 依据 protocolRef + items 生成 driver；测试项可扩展,协议层复用。"
+}

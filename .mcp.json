@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "serial": {
+      "comment": "可选：交互式真机读写。推荐 serial-mcp-server（Rust, 暴露 list_ports/open/read/write/close）。把下面命令换成你本机的实际启动命令；不需要交互读写时可整段删除，仅用 monitors 的被动监控即可。",
+      "command": "serial-mcp-server",
+      "args": [],
+      "env": {}
+    }
+  }
+}

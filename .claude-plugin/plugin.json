@@ -1,0 +1,9 @@
+{
+  "name": "embedded-loop",
+  "description": "Closed-loop firmware engineering harness: split requirements, keep a lean long-lived SPEC, auto-derive test cases, compile/flash per board, monitor real hardware output, judge pass/fail and iterate, with automatic context compaction that preserves long-term memory.",
+  "version": "0.3.0",
+  "author": {
+    "name": "XK-Peng"
+  },
+  "license": "MIT"
+}
