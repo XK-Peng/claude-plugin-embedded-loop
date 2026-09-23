@@ -6,9 +6,12 @@
 // 让 Claude 在压缩前把「本轮决策/未决问题/坑」追加进 longterm.md。
 import { appendFileSync, existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ensureDir, loopDir, readState, readHookInput } from './lib/state.mjs';
+import { ensureDir, loopDir, readState, readHookInput, isInitialized } from './lib/state.mjs';
+import { readPending } from './lib/kb.mjs';
 
 const input = await readHookInput();
+if (!isInitialized(input.cwd)) process.exit(0);   // 未初始化的项目：静默
+
 const dir = ensureDir(join(loopDir(input.cwd), 'memory'));
 const mem = join(dir, 'longterm.md');
 if (!existsSync(mem)) writeFileSync(mem, '# 长期记忆（PreCompact 自动维护）\n\n');
@@ -31,7 +34,9 @@ const payload = {
     additionalContext:
       '上下文即将压缩。请用一段话把以下内容追加到 .embedded-loop/memory/longterm.md：' +
       '（1）当前需求尚未解决的根因假设；（2）已排除的方案；' +
-      '（3）硬件相关的坑（时序/寄存器/管脚），便于压缩后无损接续。'
+      '（3）硬件相关的坑（时序/寄存器/管脚），便于压缩后无损接续。' +
+      '另外，凡是本段已经验证过的"症状→原因→做法"，还没记的请用 kb.mjs pending add 记下' +
+      `（当前待提炼 ${readPending(loopDir(input.cwd)).length} 条），压缩后这些细节就找不回来了。`
   }
 };
 process.stdout.write(JSON.stringify(payload));

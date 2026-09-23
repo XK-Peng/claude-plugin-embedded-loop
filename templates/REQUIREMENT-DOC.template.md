@@ -4,13 +4,15 @@
 <这个固件要实现什么,一两句话>
 
 ## 2. 环境（决定编译/下载工具链,env-resolver 会读这里）
-- 芯片：<如 STM32F103C8T6>
+> 本节可以不写：框架会从工程文件（IDE 工程、CMSIS pack、构建脚本）和资料里自动识别。
+> 只有识别不出来、或你想指定时才填。
+- 芯片：<可选>
 - 操作系统：<Windows / Linux / macOS>
-- IDE/工具链：<如 Keil MDK>
-- 已有可编译工程：<指向你已能编译通过的工程路径,如 .\KeilProj\app.uvprojx>
+- IDE/工具链：<可选>
+- 已有可编译工程：<可选，工程文件路径>
 
 ## 3. 资料（放在 materials/ 下,这里指明位置;支持 PDF / 网址 / 其他）
-- <materials/STM32F103xx-datasheet.pdf>
+- <资料夹里的 datasheet / 手册文件名，或官方网址>
 - <参考手册 RM0008: https://...>
 - <原理图: materials/board-sch.pdf>
 > 解读寄存器/管脚时,框架优先读这里列出的资料;网址会按需抓取。

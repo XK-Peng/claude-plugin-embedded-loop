@@ -1,6 +1,4 @@
 [
-  {
-    "name": "hw-serial-monitor",
-    "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/serial-tail.mjs\""
-  }
+  { "name": "hw-serial-monitor", "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/serial-tail.mjs\"" },
+  { "name": "inbox-watch",       "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/inbox-watch.mjs\"" }
 ]

@@ -12,17 +12,17 @@ description: Compile and flash firmware to a specific target board by reading it
 每块板子一个 JSON，**编译/烧录命令由用户填**（不同工具链差异大，绝不臆测）。字段：
 ```json
 {
-  "name": "tlsr8208d-evk",
-  "mcu": "TLSR8208D",
+  "name": "<板名，probe 生成>",
+  "mcu": "<器件，来自身份>",
   "package": "SOP16",
-  "defines": ["BOARD_TLSR8208D=1"],
+  "core": "<内核，来自身份>",
   "build":  { "command": "<在此填你的编译命令，输出 .bin>", "artifact": "build/app.bin", "cwd": "." },
   "flash":  { "command": "<在此填你的烧录命令，对 ${ARTIFACT} 烧录>" },
   "monitor":{ "port": "COM5", "baud": 115200 },
   "host_test": { "command": "<主机侧单元测试的编译+运行命令, 可选>" }
 }
 ```
-> Telink TLSR82xx 提示：编译器通常是 `tc32`（Telink 定制 GCC）产出 `.bin`；烧录常经 BDT/SWS 单线接口。把你本机实际用的命令原样填进 `build.command` / `flash.command` 即可。
+> 板子 profile 由 `probe-env.mjs` 按构建系统生成草稿，env-resolver 确认后去掉 `_draft`。命令形态见 env-resolver 的 `references/build-systems.md`；本插件不内置任何芯片专用命令，跑通的组合沉淀在经验库里。
 
 ## 步骤
 1. 确认/选择 `activeBoard`，写入 `state.json`。（未选板时 PreToolUse 钩子会拦下烧录命令。）

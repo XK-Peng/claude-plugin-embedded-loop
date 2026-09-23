@@ -1,0 +1,7 @@
+{
+  "name": "xk-embedded",
+  "owner": { "name": "XK-Peng" },
+  "plugins": [
+    { "name": "embedded-loop", "source": "./", "description": "嵌入式固件闭环：取证识别硬件 → 需求 → 测试 → 编译下载 → 真机 → 迭代，带跨芯片经验回路" }
+  ]
+}

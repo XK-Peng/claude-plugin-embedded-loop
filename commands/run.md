@@ -9,9 +9,10 @@ argument-hint: 可留空(读 requirements/REQUIREMENT.md)；或直接给需求/R
 
 全程以 `.embedded-loop/state.json` 为准，置 `state.run.active=true`：
 
-1. **确认环境**：读 `state.env`。
-   - 若 `toolchainResolved=false` 或 board 命令仍是占位符 → 调用 **env-resolver** 结合需求文档把 chip/os/ide 与编译/烧录命令补全并请用户确认，置 `toolchainResolved=true`、设 `activeBoard`。
-   - 若 init 已确认好 → 直接用，不重复问。
+1. **确认身份与工具链**：读 `state.env.identity`。
+   - 未确认，或 `toolchainResolved=false`，或 board 仍含占位符 → 调用 **env-resolver**（取证→确认身份→找资料→定工具链）。
+   - 已确认 → 直接用，不重复问。
+   - 会话开头注入的"相关经验"是按本身份从经验库检索的，拆需求和设计测试时就要考虑进去。
 2. **拆需求**：调用 **requirement-split**（读 requirements/）拆成原子 REQ，登记 state（复杂探索派 req-analyst）。让用户确认需求表。
 3. **固化规约**：调用 **spec-keeper** 同步进精简 SPEC.md。
 4. **是否需要对外检测**：需求写"仅白盒"或 `state.detector` 为 null → 跳过黑盒，只做对内测试；否则确保 fixture driver 就绪（fixture-protocol-gen）。
@@ -24,5 +25,6 @@ argument-hint: 可留空(读 requirements/REQUIREMENT.md)；或直接给需求/R
    f. Stop hook 在「未通过且未到上限」时自动顶回继续。
 6. 全部 REQ 通过、或某条 needs-human → 汇总状态/证据/迭代次数。置 `state.run.active=false`。
 7. 上下文变长时调用 **memory-compact**（PreCompact hook 也会自动落盘）。
+8. **经验回路**：Stop hook 在全部结束后会提醒提炼本轮 pending 经验，按 **lesson-loop** 技能完成入库与 helped/refuted 回馈。
 
 目标：动态调度上述 skills，迭代到真机满足所有需求与测试为止。

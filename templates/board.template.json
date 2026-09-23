@@ -1,10 +1,9 @@
 {
-  "name": "tlsr8208d-evk",
-  "mcu": "TLSR8208D",
-  "package": "SOP16",
-  "defines": ["BOARD_TLSR8208D=1"],
-  "build":  { "command": "REPLACE: 你的编译命令(输出 .bin)，如 make BOARD=tlsr8208d", "artifact": "build/app.bin", "cwd": "." },
-  "flash":  { "command": "REPLACE: 你的烧录命令，对 build/app.bin 烧录(BDT/SWS 等)" },
-  "monitor":{ "port": "COM5", "baud": 115200 },
-  "host_test": { "command": "REPLACE(可选): 主机侧单元测试编译+运行，如 gcc tests/*.c -o ut && ./ut" }
+  "name": "<板名>",
+  "mcu": "<器件，来自 state.env.identity>",
+  "core": "<内核，来自 state.env.identity>",
+  "build":  { "command": "<编译命令，按构建系统，见 env-resolver/references/build-systems.md>", "artifact": "<产物路径>", "cwd": "." },
+  "flash":  { "command": "<烧录命令>" },
+  "monitor":{ "port": "<串口>", "baud": 115200 },
+  "host_test": { "command": "" }
 }

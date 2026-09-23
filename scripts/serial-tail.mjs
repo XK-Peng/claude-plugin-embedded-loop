@@ -11,9 +11,11 @@
 // 只有匹配「信号正则」的行才会上报（默认：ERROR/ASSERT/FAIL/PASS/HARDFAULT/[TEST]）。
 import { existsSync, readFileSync, watchFile, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { loopDir, readState } from './lib/state.mjs';
+import { loopDir, readState, isInitialized } from './lib/state.mjs';
 
 const dir = loopDir();
+// 未初始化的项目：安静等待，初始化后再开始（不创建任何文件）
+while (!isInitialized()) await new Promise((r) => setTimeout(r, 10000));
 const st = readState();
 
 const SIGNAL = /(ERROR|ASSERT|FAIL|PASS|HARDFAULT|HARD FAULT|PANIC|\[TEST\]|\[REQ-\d+\])/i;

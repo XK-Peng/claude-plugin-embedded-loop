@@ -1,8 +1,10 @@
 // UserPromptSubmit hook —— 每次用户发消息前，注入「一行」当前状态。
 // 刻意只输出一行，避免每轮都膨胀上下文；没有进行中的 run 时不输出任何东西。
-import { readState, readHookInput } from './lib/state.mjs';
+import { readState, readHookInput, isInitialized } from './lib/state.mjs';
 
 const input = await readHookInput();
+if (!isInitialized(input.cwd)) process.exit(0);   // 未初始化的项目：静默
+
 const st = readState(input.cwd);
 
 if (!st.run.active || !st.currentReq) process.exit(0);

@@ -22,44 +22,48 @@ export function ensureDir(dir) {
 }
 
 const DEFAULT_STATE = {
-  schema: 2,
+  schema: 3,
   project: '',
-  // 从需求文档解析出的工程环境（env-resolver 技能填写）
   env: {
-    chip: null,                 // 如 "TLSR8208D" / "STM32F103C8T6"
-    os: null,                   // 如 "Windows" / "Linux" / "macOS"
-    ide: null,                  // 如 "Keil MDK" / "STM32CubeIDE" / "Telink IDE" ...
-    requirementsDir: 'requirements', // 需求文档夹（工程根下,你写需求的地方）
-    materialsDir: 'materials',  // 需求资料夹（datasheet PDF/原理图/网址清单…）
-    docsDir: null,              // 兼容旧字段:资料目录(默认同 materialsDir)
-    toolchainResolved: false    // 工具链是否已解析并写入 board profile
+    // 身份由 probe-env.mjs 从工程文件格式里取证、env-resolver 确认。插件内不写死任何型号。
+    identity: null,             // { chip, core, arch, vendor, family, sdk, buildSystem, flasher, sources, confirmed }
+    chip: null,                 // 兼容字段 = identity.chip
+    os: null,
+    ide: null,
+    requirementsDir: 'requirements',
+    materialsDir: 'materials',
+    docsDir: null,
+    toolchainResolved: false
   },
-  activeBoard: null,            // boards/<name>.json 里的 name（被测件 DUT）
-  // 对外检测设备（黑盒/产测）。可为 null = 仅做对内白盒测试
-  detector: null,               // { name, port, baud, protocolRef, lang, items: [] }
-  currentReq: null,             // 当前正在迭代的需求 id，如 "REQ-003"
-  maxIterations: 5,             // 单个需求允许的自动迭代上限（防死循环 / 防烧录损耗）
-  requirements: [],             // [{ id, title, status, iterations, result }]
-  // status: "todo" | "in-progress" | "built" | "flashed" | "pass" | "fail" | "needs-human"
-  // result: { inward: "pass"|"fail"|null, outward: "pass"|"fail"|null }
+  activeBoard: null,
+  detector: null,               // 外部检测设备（黑盒/产测），null = 仅白盒
+  currentReq: null,
+  maxIterations: 5,
+  requirements: [],             // [{ id, title, status, iterations, result:{inward,outward} }]
   run: { active: false, startedAt: null },
-  lastBuild: null,              // { board, ok, at, logRef }
-  lastFlash: null,              // { board, ok, at }
-  lastVerify: null,             // { req, inwardPass, outwardPass, pass, at, evidenceRef }
+  // 经验回路：本会话注入了哪些经验、提炼请求是否已发出
+  lessons: { injected: [], distillRequestedFor: null },
+  lastTranscript: null,         // 最近会话记录路径（harvest 用）
+  lastBuild: null,
+  lastFlash: null,
+  lastVerify: null,
   updatedAt: null
 };
 
+// 工程是否已被 /embedded-loop:init 初始化。hook 与 monitor 在未初始化的项目里必须静默，
+// 不能创建任何文件（插件装上后会在所有项目里运行）。
+export function isInitialized(cwdHint) {
+  return existsSync(loopDir(cwdHint));
+}
+
+// 只读：文件不存在时返回默认值，不落盘（v0.4.0 这里会顺手建目录，导致无关项目被污染）
 export function readState(cwdHint) {
-  const dir = ensureDir(loopDir(cwdHint));
-  const f = join(dir, 'state.json');
-  if (!existsSync(f)) {
-    const s = structuredClone(DEFAULT_STATE);
-    s.updatedAt = new Date().toISOString();
-    writeFileSync(f, JSON.stringify(s, null, 2));
-    return s;
-  }
+  const f = join(loopDir(cwdHint), 'state.json');
+  if (!existsSync(f)) return structuredClone(DEFAULT_STATE);
   try {
-    return { ...structuredClone(DEFAULT_STATE), ...JSON.parse(readFileSync(f, 'utf8')) };
+    const d = structuredClone(DEFAULT_STATE);
+    const j = JSON.parse(readFileSync(f, 'utf8'));
+    return { ...d, ...j, env: { ...d.env, ...(j.env || {}) }, lessons: { ...d.lessons, ...(j.lessons || {}) }, run: { ...d.run, ...(j.run || {}) } };
   } catch {
     return structuredClone(DEFAULT_STATE);
   }

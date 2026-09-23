@@ -18,10 +18,16 @@ hw-monitor 给回真机证据后；需要判 pass/fail；需要决定「再迭�
    若 `state.detector` 为 null,或该 REQ 没有 outward 用例(需求文档写明"仅白盒"),则**只按 inward 判定**,outward 记 null,不影响 pass 与自动迭代。
 
 ## 迭代（fail 时）
+0. **先查经验**：`node "${CLAUDE_PLUGIN_ROOT}/scripts/kb.mjs" query --topic "<症状关键词>"`。同身份（同芯片/同内核/同 SDK/同构建系统）以前踩过的坑会被召回，先对照再假设。
 1. **定位**：用失败证据（测试打点 / 波形指标 / fault 寄存器）形成单一最可能根因假设。host 能复现的先在主机复现，别浪费烧录。
 2. **改**：遵守 SPEC 架构铁律改代码（HAL/BSP 分层、静态内存、ISR 解耦…）。涉及管脚/寄存器映射的改动需对照原理图/datasheet，不臆测。
 3. **回闭环**：board-flash 重新编译下载 → hw-monitor 重采 → 回到本技能再判。
 4. **计数**：每完成一轮 `iterations += 1` 写回 state。
+5. **记一笔**（经验回路，一行命令）：`kb.mjs pending add '{"symptom":"…","hypothesis":"…","fix":"…","result":"pass|fail|ruled-out","evidence":"logs/…"}'`。被排除的假设也记，它能帮下一次少走弯路。
+
+## 通过时
+- 对 `state.lessons.injected` 中这次确实用上的经验执行 `kb.mjs feedback <id> helped`；被证据推翻的执行 `refuted`。
+- 提炼入库在 run 结束时由 Stop hook 提醒，按 **lesson-loop** 技能做。
 
 ## 收敛与刹车（防死循环 / 防烧录损耗）
 - `pass`：把 REQ 标 `pass`，推进到下一条未完成 REQ；全部 pass 则结束 run。

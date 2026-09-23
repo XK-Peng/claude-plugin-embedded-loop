@@ -1,1 +1,5 @@
 node_modules/
+.env
+*.log
+# 运行产物属于各工程，不进插件仓库
+.embedded-loop/

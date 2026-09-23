@@ -21,7 +21,7 @@ description: Capture and interpret real hardware output — serial/UART logs, pi
 - 真机采集与解析建议交给 `hw-verifier` 子 agent：它在隔离上下文里读原始证据，回报极少量数字（Vpp、频率、上升时间、电流均值、寄存器值、命中的测试打点）。这是把"硬件噪声"挡在主上下文外、控制 token 的关键。
 
 ## HardFault / 异常诊断
-拿到 Cortex-M 类 fault 的寄存器/调用栈时，解读 fault status 位（如配置型 fault 寄存器），定位疑似函数，给出根因假设（栈溢出 / 空指针 / 非对齐访问 等），把结论写进 `tests/<REQ>.md` 的证据区与 longterm.md。
+拿到异常/fault 的寄存器或调用栈时，按 `state.env.identity` 的内核与架构去对应手册（资料夹或已抽取的 SVD）解读异常状态位，并先 `kb.mjs query --topic "fault 异常"` 查同架构的已知坑，定位疑似函数，给出根因假设（栈溢出 / 空指针 / 非对齐访问 等），把结论写进 `tests/<REQ>.md` 的证据区与 longterm.md。
 
 ## 输出
 把「这次真机实际表现」整理成结构化证据交给 verify-iterate：

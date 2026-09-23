@@ -4,9 +4,9 @@
 <1-2 句话说明这个固件要做什么>
 
 ## 2. 环境（env-resolver 解析,决定编译/下载工具链）
-- 芯片(chip)：<如 TLSR8208D / SOP16>
+- 身份：由 env-resolver 从工程证据确认后写入（器件 / 内核 / 架构 / 厂商 / SDK / 构建系统 / 烧录器）
 - 操作系统(os)：<Windows / Linux / macOS>
-- IDE/工具链(ide)：<Telink IDE / STM32CubeIDE / Keil MDK / ESP-IDF ...>
+- 构建与烧录命令：见 .embedded-loop/boards/
 - 资料目录(docsDir)：<datasheet/SDK/原理图 文件夹路径>
 
 ## 3. 硬件

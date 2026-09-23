@@ -1,25 +1,15 @@
 ---
-description: 仅初始化：建目录结构 + 自动识别当前项目芯片并配好编译/烧录工具链。不读需求、不开始迭代。
+description: 初始化：建目录结构 + 从工程文件取证识别芯片/内核/构建系统 + 生成工具链草稿。不读需求、不开始迭代。
 ---
 
-**只做初始化与环境准备，绝不读取需求文档、绝不开始任何编译/迭代。** 步骤：
+**只做初始化与环境准备，不读需求文档、不开始编译或迭代。**
 
-1. **建脚手架（确定性）**：运行
-   `node "${CLAUDE_PLUGIN_ROOT}/scripts/init-scaffold.mjs"`
-   创建 `requirements/`、资料夹（若已有 `material/` 单数则沿用）、`.embedded-loop/{tests,boards,detectors,protocols,memory,logs}`，放好输入模板，初始化 state.json。已存在的文件不覆盖（可安全重复运行）。
-
-2. **自动识别芯片 + 配工具链**：运行
-   `node "${CLAUDE_PLUGIN_ROOT}/scripts/detect-env.mjs"`
-   它扫描当前工程已有文件（DFP 包、`*_Library`/`*_DFP` SDK 目录、`.uvprojx`、jlink 等），推断芯片/厂商/IDE/烧录器，写入 `state.env`，并生成一份 `boards/<芯片>.json` 草稿（编译/烧录命令为最佳猜测+占位符）。把脚本输出原样转达用户。
-
-3. **请用户确认/补全检测结果**（仍属初始化，不要开始跑）：
-   - 若芯片识别成功（如 N32G003）：把草稿里的 Keil 安装路径、`.uvprojx`、产物路径、`COM` 口列给用户确认；确认后可把 `state.activeBoard` 设为该芯片名、`state.env.toolchainResolved=true`。
-   - 若芯片未识别（例如该厂商不在内置表里）：告诉用户在 `requirements/REQUIREMENT.md` 第 2 节写明芯片/IDE，或直接给一条平时能编译/烧录的命令，由你填进 board 草稿。
-   - 解读寄存器/管脚的资料以资料夹下的 PDF/DFP 为准，不臆测。
-
-4. **结束初始化并给出下一步**（不要继续）：
-   - 告诉用户：把需求写进 `requirements/REQUIREMENT.md`，把资料放进资料夹（或在其 README 列出位置）。
-   - 提示：准备好后运行 `/embedded-loop:run` 才开始拆需求→测试→编译下载→迭代。
-   - 想看完整用法可运行 `/embedded-loop:help`。
-
-> 设计意图：init 与 run 职责分离。init 只把"结构 + 工具链"准备好；动态调度 skills 和自我迭代全部在 run 里发生。
+1. 建脚手架：`node "${CLAUDE_PLUGIN_ROOT}/scripts/init-scaffold.mjs"`（已存在的文件不覆盖，可重复运行；已有 `material/` 单数资料夹则沿用）。
+2. 取证识别：`node "${CLAUDE_PLUGIN_ROOT}/scripts/probe-env.mjs"`。它不认识任何型号，只读 IDE 工程、CMSIS pack、构建脚本等标准格式，生成 `evidence.json`、候选身份和 board 草稿。把输出原样转达用户。
+3. 调用 **env-resolver**：补全 `arch`，把候选身份给用户确认；检查资料是否齐全，缺的按身份找原厂链接记到资料夹 `LINKS.md`；把 board 草稿里的占位命令确认或补全，能试跑就试跑一次。
+4. 运行 `node "${CLAUDE_PLUGIN_ROOT}/scripts/kb.mjs" query`，告诉用户经验库里已有几条与本工程身份相关的经验（没有就说是新身份）。
+5. 结束，给出下一步：
+   - 把需求写进 `requirements/REQUIREMENT.md`（环境一节可不写），资料放进资料夹。
+   - 会话内：放入/修改需求后，后台 inbox 监控会提示你运行 `/embedded-loop:run`。
+   - 无人值守：终端里 `node "<插件目录>/scripts/autorun.mjs"`，需求一变就自动跑一轮。
+   - 用法见 `/embedded-loop:help`。
